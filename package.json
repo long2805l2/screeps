@@ -1,0 +1,13 @@
+{
+	"name": "screeps",
+	"version": "0.0.0",
+	"license": "MIT",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"private": true,
+	"dependencies": {
+		"screeps-api": "^1.7.2"
+	},
+	"devDependencies": {}
+}
