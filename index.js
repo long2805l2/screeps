@@ -1,4 +1,5 @@
 const fs = require('fs');
+var readline = require('readline');
 const { ScreepsAPI } = require('screeps-api');
 
 const TOKEN = require('./token');
@@ -12,10 +13,6 @@ const api = new ScreepsAPI(
 	port: 443,
 	path: '/'
 });
-
-// api.me().then((user)=>console.log(user));
-
-// api.code.get('default').then(data=>console.log('code',data));
 
 function upload (path, branch)
 {
@@ -33,4 +30,52 @@ function upload (path, branch)
 	api.code.set(branch, src).then ((data) => console.log (JSON.stringify (data)));
 }
 
-upload (config.src, "default");
+function input(prompt, callback)
+{
+	let rl = readline.createInterface({
+		input: process.stdin,
+		output: process.stdout
+	});
+	
+    rl.question(prompt, function (x) {
+        rl.close();
+        callback(x);
+    });
+}
+
+function main()
+{
+	input("command: ", (cmd) => 
+	{
+		let isQuit = false;
+		switch (cmd)
+		{
+			case "upload":
+				upload (config.src, "default");
+				break;
+
+			case "download":
+				api.code.get('default').then(data=>console.log('code',data));
+				break;
+
+			case "info":
+				api.me().then((user)=>console.log(user));
+				break;
+
+			case "quit":
+				isQuit = true;
+				break;
+
+			default:
+				console.log ("don't support cmd '" + cmd + "'");
+				break;
+		}
+
+		if (isQuit)
+			console.log ("service completed ...");
+		else
+			process.nextTick(() => main());
+	});
+}
+
+main ();
