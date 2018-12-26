@@ -30,24 +30,21 @@ main.spawn.init = function (spawn)
 
 	memory.plan = {
 		creeps: {
-			worker: 3,
+			worker: 6,
 		},
-		roads: [],
+		roads: [[spawn.pos, spawn.room.controller.pos]],
 		building: []
 	};
 
 	memory.task = [];
 
 	memory.sources = util.room.enegry (spawn.room);
-	// for (let i in memory.sources)
-	// {
-	// 	let slot = memory.sources [i];
-	// 	util.room.build.road (spawnId, spawn.pos, slot.pos);
-		// console.log ("build road", JSON.stringify (spawn.pos), JSON.stringify (slot.pos));
-	// 	break;
-	// }
-	
-	util.room.build.road (spawn.room, spawn.pos, spawn.room.controller.pos);
+	for (let i in memory.sources)
+	{
+		let slot = memory.sources [i];
+		memory.plan.roads.push ([spawn.pos, slot.pos]);
+		break;
+	}
 	
 	memory.ready = true;
 };
@@ -75,12 +72,12 @@ main.spawn.task = function (spawn)
 		if (creep.memory.job.length === 0)
 		{
 			idle.push (creep);
-			switch (creep.memory.jobType)
-			{
-				case "collect":
-					delete memory.sources [creep.memory.jobFrom].worker;
-				break;
-			}
+			// switch (creep.memory.jobType)
+			// {
+			// 	case "collect":
+			// 		delete memory.sources [creep.memory.jobFrom].worker;
+			// 	break;
+			// }
 		}
 
 		all.push (creep.id);
@@ -98,6 +95,17 @@ main.spawn.task = function (spawn)
 	}
 
 	if (idle.length > 0)
+	{
+		main.spawn.refill (spawn, idle);
+	}
+};
+
+main.spawn.build = function (spawn, idle)
+{};
+
+main.spawn.refill = function (spawn, idle)
+{
+	let memory = spawn.memory;
 	for (let i in memory.sources)
 	{
 		let source = memory.sources [i];
@@ -111,15 +119,13 @@ main.spawn.task = function (spawn)
 				["harvest", source.id],
 				["transfer", spawn.id]
 			];
-			creep.memory.jobType = "collect";
-			creep.memory.jobFrom = i;
 			source.worker = creep.id;
 		}
 
 		if (idle.length === 0)
 			break;
 	}
-};
+}
 
 module.exports.loop = function ()
 {
@@ -153,6 +159,6 @@ module.exports.loop = function ()
 		}
 
 		if (complete)
-			creep.memory.job.shift ();
+			creep.memory.job.push (creep.memory.job.shift ());
 	}
 }
