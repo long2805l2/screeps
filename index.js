@@ -45,8 +45,10 @@ function input(prompt, callback)
 
 function main()
 {
-	input("command: ", (cmd) => 
+	input("command: ", (param) => 
 	{
+		param = param.trim().split (" ");
+		let cmd = param [0];
 		let isQuit = false;
 		switch (cmd)
 		{

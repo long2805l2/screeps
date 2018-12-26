@@ -14,9 +14,9 @@ const NEARLY = [
 var util = {};
 
 util.room = {};
-util.room.enegry = function (spawnName)
+util.room.enegry = function (room)
 {
-	let currentRoom = Game.spawns [spawnName].room;
+	let currentRoom = room;
 	let sources = currentRoom.find(FIND_SOURCES);
 	let data = [];
 	for (let id in sources)
@@ -44,9 +44,9 @@ util.room.enegry = function (spawnName)
 };
 
 util.room.build = {};
-util.room.build.road = function (spawnName, a, b)
+util.room.build.road = function (room, a, b)
 {
-	let currentRoom = Game.spawns [spawnName].room;
+	let currentRoom = room;
 	var chemin = a.findPathTo(b);
 	for (var i = 0; i < chemin.length; i++)
 	{
@@ -57,10 +57,10 @@ util.room.build.road = function (spawnName, a, b)
 };
 
 util.spawn = {};
-util.spawn.energy = function (spawnName)
+util.spawn.energy = function (spawn)
 {
-	if (spawnName in Game.spawns)
-		return Game.spawns [spawnName].energy;
+	if (spawn)
+		return spawn.energy;
 	return 0;
 };
 
@@ -79,11 +79,11 @@ util.creep.price = function (...bodies)
 	return value;
 };
 
-util.creep.create = function (spawnName, creepBody, creepName, creepOti = {})
+util.creep.create = function (spawn, creepBody, creepName, creepOti = {})
 {
-	let energy = util.spawn.energy (spawnName);
+	let energy = util.spawn.energy (spawn);
 	let cost = util.creep.price (...creepBody);
-	let result = Game.spawns[spawnName].spawnCreep(creepBody, creepName, creepOti);
+	let result = spawn.spawnCreep(creepBody, creepName, creepOti);
 	// console.log (spawnName, "create", energy, cost, result);
 	return result;
 };
