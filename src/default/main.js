@@ -1,4 +1,5 @@
 var util = require('util');
+var task = require('task');
 var role = require('role');
 
 const WORKER_1 = [WORK, CARRY, MOVE, MOVE];
@@ -14,6 +15,9 @@ main.spawn.loop = function (spawn)
 		main.spawn.init (spawn);
 
 	main.spawn.task (spawn);
+
+	let allTask = task.check (spawn);
+	console.log (JSON.stringify (allTask));
 };
 
 main.spawn.init = function (spawn)
