@@ -15,9 +15,6 @@ main.spawn.loop = function (spawn)
 		main.spawn.init (spawn);
 
 	main.spawn.task (spawn);
-
-	let allTask = task.check (spawn);
-	console.log (JSON.stringify (allTask));
 };
 
 main.spawn.init = function (spawn)
@@ -40,7 +37,7 @@ main.spawn.init = function (spawn)
 		building: []
 	};
 
-	memory.task = [];
+	memory.task = {};
 
 	memory.sources = util.room.enegry (spawn.room);
 	for (let i in memory.sources)
@@ -74,24 +71,12 @@ main.spawn.task = function (spawn)
 			continue;
 
 		if (creep.memory.job.length === 0)
-		{
 			idle.push (creep);
-			// switch (creep.memory.jobType)
-			// {
-			// 	case "collect":
-			// 		delete memory.sources [creep.memory.jobFrom].worker;
-			// 	break;
-			// }
-		}
 
 		all.push (creep.id);
 	}
 	
-	if (spawn.spawning)
-	{
-		console.log ("spawning", spawn.spawning.name, spawn.spawning.remainingTime);
-	}
-	else
+	if (!spawn.spawning)
 	{
 		if (plan.creeps.worker > all.length)
 		if (spawn.energy >= util.creep.price (...WORKER_1))

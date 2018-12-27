@@ -20,6 +20,39 @@ task.check = function (spawn)
 	return all;
 };
 
+task.update = function (spawn)
+{
+	let newTask = task.check (spawn);
+	let oldTask = spawn.memory.task;
+
+	let all = {};
+	for (let id in newTask)
+	{
+		let list = {};
+		let requests = newTask [id];
+
+		let old = oldTask [id];
+		if (old)
+		{
+			for (let i in requests)
+			{
+				let request = requests [i];
+				list [request] = {};
+			}
+		}
+		else
+		{
+			for (let i in requests)
+			{
+				let request = requests [i];
+				list [request] = {};
+			}
+		}
+
+		all [id] = list;
+	}
+};
+
 task.refill = function (spawn)
 {
 	let all = [];
