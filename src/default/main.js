@@ -31,7 +31,7 @@ main.spawn.init = function (spawn)
 
 	memory.plan = {
 		creeps: {
-			worker: 6,
+			worker: { count: 6, body: WORKER_1 },
 		},
 		roads: [[spawn.pos, spawn.room.controller.pos]],
 		building: []
@@ -59,62 +59,20 @@ main.spawn.task = function (spawn)
 	let memory = spawn.memory;
 	let plan = memory.plan; 
 	
-	let all = [];
-	let idle = [];
-	for (let i in Game.creeps)
+	if (plan.creeps.worker.count > 0)
 	{
-		let creep = Game.creeps [i];
-		if (creep.spawning)
-			continue;
-			
-		if (creep.room !== room)
-			continue;
-
-		if (creep.memory.job.length === 0)
-			idle.push (creep);
-
-		all.push (creep.id);
-	}
-	
-	if (!spawn.spawning)
-	{
-		if (plan.creeps.worker > all.length)
-		if (spawn.energy >= util.creep.price (...WORKER_1))
-			spawn.spawnCreep(WORKER_1, "worker_" + all.length, { memory: { role: "worker", job: [] } });
-	}
-
-	if (idle.length > 0)
-	{
-		main.spawn.refill (spawn, idle);
-	}
-};
-
-main.spawn.build = function (spawn, idle)
-{};
-
-main.spawn.refill = function (spawn, idle)
-{
-	let memory = spawn.memory;
-	for (let i in memory.sources)
-	{
-		let source = memory.sources [i];
-		if (source.worker)
-			continue;
-
-		let creep = idle.shift ();
-		if (creep)
+		if (!spawn.spawning)
 		{
-			creep.memory.job = [
-				["harvest", source.id],
-				["transfer", spawn.id]
-			];
-			source.worker = creep.id;
+			if (spawn.energy >= util.creep.price (...plan.creeps.worker.body))
+			{
+				plan.creeps.worker.count -= 1;
+				spawn.spawnCreep(plan.creeps.worker.body, "worker_" + plan.creeps.worker.count, { memory: { role: "worker", job: [] } });
+			}
 		}
-
-		if (idle.length === 0)
-			break;
 	}
-}
+
+	task.update (spawn);
+};
 
 module.exports.loop = function ()
 {
@@ -122,32 +80,37 @@ module.exports.loop = function ()
 	{
 		let spawn = Game.spawns[spawnId];
 		main.spawn.loop (spawn);
-	}
-
-	for (var i in Game.creeps)
-	{
-		let creep = Game.creeps [i];
-		if (creep.spawning)
-			continue;
 		
-		let job = creep.memory.job;
-		if (job.length === 0)
-			continue;
-			
-		let currentJob = creep.memory.job [0];
-		let task = currentJob [0];
-		let targetId = currentJob [1];
-
-		let complete = false;
-		switch (task)
+		let task = spawn.memory.task;
+		for (let customerId in task)
 		{
-			case "harvest":		complete = role.harvest (creep, targetId);	break;
-			case "transfer":	complete = role.transfer (creep, targetId);	break;
-			case "build":		complete = role.build (creep, targetId);	break;
-			case "harvest":		complete = role.upgrade (creep, targetId);	break;
-		}
+			let requests = task [customerId];
+			for (let type in requests)
+			{
+				let workers = requests [type];
+				for (let i in workers)
+				{
+					let workerId = workers [i];
+					let worker = Game.getObjectById (workerId);
 
-		if (complete)
-			creep.memory.job.push (creep.memory.job.shift ());
+					let currentJob = worker.memory.job [0];
+					let task = currentJob [0];
+					let targetId = currentJob [1];
+			
+					let complete = role [task] ? role [task] (worker, targetId) : false;
+					if (complete)
+					{
+						switch (task)
+						{
+							case "harvest":		
+								spawn.memory.sources [targetId] += 1;
+								break;
+						}
+
+						worker.memory.job.shift ();
+					}
+				}
+			}
+		}
 	}
 }

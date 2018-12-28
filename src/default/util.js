@@ -18,7 +18,7 @@ util.room.enegry = function (room)
 {
 	let currentRoom = room;
 	let sources = currentRoom.find(FIND_SOURCES);
-	let data = [];
+	let data = {};
 	for (let id in sources)
 	{
 		let source = sources [id];
@@ -34,10 +34,10 @@ util.room.enegry = function (room)
 			if (t !== 0)
 				continue;
 				
-			data.push ({
-				id: source.id,
-				pos: p,
-			});
+			if (data [source.id])
+				data [source.id] += 1;
+			else
+				data [source.id] = 1;
 		}
 	}
 	return data;

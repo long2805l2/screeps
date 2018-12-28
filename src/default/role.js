@@ -47,11 +47,12 @@ role.upgrade = function (creep, targetId)
 {
 	let target = Game.getObjectById (targetId);
 	let incomplete = target.progress < target.progressTotal;
+	console.log ("role.upgrade", targetId, target.progress, target.progressTotal)
 	if (incomplete)
 	{
 		if (creep.carry.energy > 0)
 		{
-			if (creep.upgradeController(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+			if (creep.upgradeController(target) == ERR_NOT_IN_RANGE)
 				role.moveTo (creep, target);
 		}
 	}
